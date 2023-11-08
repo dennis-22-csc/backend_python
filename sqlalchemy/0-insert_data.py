@@ -1,6 +1,6 @@
 """
 
-This module creates a new user and a correspoding profile in the database.
+This module creates a new user and a corresponding profile in the database.
 
 """
 
@@ -12,6 +12,4 @@ new_user = User(username='dennis', profile=Profile(full_name='Akpotaire Dennis')
 session = Session()
 session.add(new_user)
 session.commit()
-
-# Close the session when done
 session.close()
