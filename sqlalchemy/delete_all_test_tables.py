@@ -22,5 +22,5 @@ def delete_all_tables():
 		return "Error occurred: {}".format(e)
 		
 if __name__ == "__main__":
-	result = delete_all_tables()
+	result = delete_all_tables(session)
 	print(result)

@@ -43,10 +43,10 @@ def get_profiles(session):
         return "Error occurred: {}".format(e)
 
 if __name__ == "__main__":
-	Session = __import__("config").Session
+    Session = __import__("config").Session
     with Session() as db_session:
         result = get_users(db_session)
-        
+
         if isinstance(result, list):
             if result:
                 print("User data")
@@ -58,7 +58,6 @@ if __name__ == "__main__":
             print(result)
 
         result = get_profiles(db_session)
-
         print("")
         if isinstance(result, list):
             if result:
