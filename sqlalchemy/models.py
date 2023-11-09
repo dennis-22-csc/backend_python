@@ -23,8 +23,8 @@ class User(Base):
     """
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
-    username = Column(String(255))
-    profile_id = Column(Integer, ForeignKey('profiles.id'))
+    username = Column(String(255), nullable=False)
+    profile_id = Column(Integer, ForeignKey('profiles.id'), nullable=False)
     profile = relationship('Profile', uselist=False, back_populates='user')
 
 class Profile(Base):
@@ -39,7 +39,7 @@ class Profile(Base):
     """
     __tablename__ = 'profiles'
     id = Column(Integer, primary_key=True)
-    full_name = Column(String(255))
+    full_name = Column(String(255), nullable=False)
     user = relationship('User', back_populates='profile')
 
 
@@ -55,5 +55,5 @@ class Customer(Base):
     """
     __tablename__ = 'customers'
     id = Column(Integer, primary_key=True)
-    name = Column(String(25))
-    age = Column(Integer)
+    name = Column(String(25), nullable=False)
+    age = Column(Integer, nullable=False)
