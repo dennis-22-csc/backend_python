@@ -1,8 +1,8 @@
 """
 
-This module defines SQLAlchemy models for User and Profile for a database.
+This module defines SQLAlchemy models for a database.
 
-It includes the User and Profile classes which are ORM models mapped to database tables.
+It includes classes which are ORM models mapped to database tables.
 
 """
 
