@@ -17,9 +17,12 @@ Functions:
 
 import unittest
 from models import User, Profile
-from config import Session
+from test_config import Session
 
 create_user = __import__('0_insert_data').create_user
+create_tables = __import__('create_test_tables').create_tables
+delete_tables = __import__('delete_all_test_tables').delete_all_tables
+
 
 class DatabaseCreateUserFunctionTestCase(unittest.TestCase):
     """This will test the create_user function given various inputs. 
@@ -28,10 +31,13 @@ class DatabaseCreateUserFunctionTestCase(unittest.TestCase):
     def setUp(self):
         """Initializes external dependencies"""
         self.db_session = Session()
+        create_tables()
+        
 
     def teardown(self):
-        """Closes open objects"""
+        """Remove no longer needed dependencies"""
         self.db_session.close()
+        delete_tables()
 
     def test_create_user_when_user_is_correct(self):
         """Test create_user function when user argument is correctly supplied"""
@@ -46,6 +52,7 @@ class DatabaseCreateUserFunctionTestCase(unittest.TestCase):
         self.assertEqual(-1, result)
 
     def test_create_user_when_user_is_missing_profile_parameter(self):
+        """Test create_user function when user argument is missing profile parameter."""
         new_user = User(username='oluwaseun', )
         result = create_user(self.db_session, new_user)
         self.assertEqual(-1, result)

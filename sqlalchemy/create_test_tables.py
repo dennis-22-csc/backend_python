@@ -1,12 +1,12 @@
 """
-This module initializes and creates database tables using SQLAlchemy.
+This module initializes and creates database tables using SQLAlchemy for testing purposes.
 
 It includes a function for creating tables in the database based on the SQLAlchemy Base model.
 
 Functions:
 	create_tables(): Creates tables in the database. 
 """
-from config import engine
+from test_config import engine
 from models import Base
 
 def create_tables():
@@ -24,3 +24,4 @@ def create_tables():
 if __name__ == "__main__":
 	result = create_tables()
 	print(result)
+	

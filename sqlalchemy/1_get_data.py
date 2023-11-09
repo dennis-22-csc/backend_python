@@ -10,7 +10,6 @@ Functions:
 """
 
 from models import User, Profile
-from config import Session
 
 def get_users(session):
     """Gets users.
@@ -44,6 +43,7 @@ def get_profiles(session):
         return "Error occurred: {}".format(e)
 
 if __name__ == "__main__":
+	Session = __import__("config").Session
     with Session() as db_session:
         result = get_users(db_session)
         

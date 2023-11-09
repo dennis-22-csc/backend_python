@@ -9,7 +9,6 @@ Functions:
 """
 
 from models import User, Profile
-from config import Session
 
 def create_user(session, user):
     """Create a new user in the database.
@@ -33,6 +32,7 @@ def create_user(session, user):
 
 if __name__ == "__main__":
     new_user = User(username='dennis', profile=Profile(full_name='Akpotaire Dennis'))
+    Session = __import__("config").Session
     with Session() as db_session:
         result = create_user(db_session, new_user)
         print("result: ", result)
