@@ -21,6 +21,7 @@ class TwoMultipleDataInsertTestCase(unittest.TestCase):
         """Removes no longer needed objects."""
         self.db_session.close()
         delete_tables()
+        open("database.log", "w").close() # Empty the file
 
 
     def test_insert_multiple_data_for_correct_input(self):
@@ -91,6 +92,7 @@ class TwoMultipleDataInsertTestCase(unittest.TestCase):
             self.assertIn(f"{customer_dict1} is not a dictionary.", log_content)
             self.assertIn(f"{customer_dict2} is not a dictionary.", log_content)
             self.assertEqual("Added all customers except 2. Check the database log for more details.", result)
+        
            
     def test_insert_multiple_data_when_one_or_more_customer_info_dict_contains_the_wrong_key(self):
         """Test insert_customers_from_dict_list function when one or more customer info dictionaries contains the wrong key."""
@@ -121,3 +123,4 @@ class TwoMultipleDataInsertTestCase(unittest.TestCase):
             self.assertIn(f"{customer_dict2} doesn't have a correct key.",log_content)
             self.assertIn(f"{customer_dict3} doesn't have a correct key.", log_content)
             self.assertEqual("Added all customers except 3. Check the database log for more details.", result)
+        
