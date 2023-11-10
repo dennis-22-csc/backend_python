@@ -1,120 +1,42 @@
 """
 
-This module creates hundred customers in the database.
+This module creates multiple customers in the database.
 
+Functions:
+	insert_customers_from_dict_list(session, customers_list): Creates customers in the database from a list of dictionary of customer info. 
+	
 """
 
 from models import Customer
-from config import Session
 
-customers_list = [
-    {"name": "Alice", "age": 25},
-    {"name": "Bob", "age": 30},
-    {"name": "Charlie", "age": 22},
-    {"name": "David", "age": 35},
-    {"name": "Eve", "age": 28},
-    {"name": "Frank", "age": 32},
-    {"name": "Grace", "age": 27},
-    {"name": "Eve", "age": 28},
-    {"name": "Dennis", "age": 22},
-    {"name": "Alimat", "age": 17},
-    {"name": "Hilda", "age": 25},
-    {"name": "Chibuike", "age": 30},
-    {"name": "Nathan", "age": 22},
-    {"name": "Oluwaseun", "age": 35},
-    {"name": "Christianah", "age": 28},
-    {"name": "Patrick", "age": 32},
-    {"name": "Solomon", "age": 27},
-    {"name": "Lawal", "age": 28},
-    {"name": "Stella", "age": 32},
-    {"name": "Adebayo", "age": 27},
-    {"name": "Adeboye", "age": 25},
-    {"name": "Ayodeji", "age": 30},
-    {"name": "Kunle", "age": 22},
-    {"name": "Daniel", "age": 35},
-    {"name": "Sandra", "age": 28},
-    {"name": "Prince", "age": 32},
-    {"name": "Joshua", "age": 27},
-    {"name": "John", "age": 28},
-    {"name": "Franklin", "age": 32},
-    {"name": "Lekan", "age": 27},
-    {"name": "Adeyemi", "age": 25},
-    {"name": "Opeyemi", "age": 90},
-    {"name": "Debola", "age": 22},
-    {"name": "Olaitan", "age": 35},
-    {"name": "Bello", "age": 28},
-    {"name": "Ayo", "age": 32},
-    {"name": "Itunu", "age": 27},
-    {"name": "Akeredolu", "age": 28},
-    {"name": "Darasimi", "age": 32},
-    {"name": "Monday", "age": 27},
-    {"name": "Victor", "age": 85},
-    {"name": "Peter", "age": 30},
-    {"name": "Ruth", "age": 22},
-    {"name": "Naomi", "age": 35},
-    {"name": "Blessing", "age": 28},
-    {"name": "Kate", "age": 72},
-    {"name": "Catherine", "age": 27},
-    {"name": "Samuel", "age": 28},
-    {"name": "Isaac", "age": 32},
-    {"name": "Paul", "age": 27},
-    {"name": "Kemi", "age": 25},
-    {"name": "Olawale", "age": 30},
-    {"name": "Babajide", "age": 22},
-    {"name": "Olamilekan", "age": 35},
-    {"name": "Adepitan", "age": 68},
-    {"name": "Olowe", "age": 32},
-    {"name": "Awoyemi", "age": 27},
-    {"name": "Yemisi", "age": 28},
-    {"name": "Mercy", "age": 32},
-    {"name": "Goodness", "age": 27},
-    {"name": "Wale", "age": 65},
-    {"name": "Babs", "age": 30},
-    {"name": "Olorunsogo", "age": 22},
-    {"name": "Chioma", "age": 35},
-    {"name": "Chukwuma", "age": 28},
-    {"name": "Chinenye", "age": 52},
-    {"name": "Chidimma", "age": 27},
-    {"name": "Onyema", "age": 28},
-    {"name": "Oscar", "age": 32},
-    {"name": "Johnson", "age": 27},
-    {"name": "Jones", "age": 25},
-    {"name": "Ogomide", "age": 50},
-    {"name": "Ogunwale", "age": 22},
-    {"name": "Ogunleye", "age": 35},
-    {"name": "Olaleye", "age": 28},
-    {"name": "Salt", "age": 32},
-    {"name": "Folashade", "age": 27},
-    {"name": "Femi", "age": 58},
-    {"name": "Unini", "age": 32},
-    {"name": "Bolanle", "age": 27},
-    {"name": "Kunle", "age": 25},
-    {"name": "Omosewa", "age": 30},
-    {"name": "Sewa", "age": 22},
-    {"name": "Awa", "age": 45},
-    {"name": "Umar", "age": 28},
-    {"name": "Labake", "age": 32},
-    {"name": "Abibat", "age": 27},
-    {"name": "Modinat", "age": 28},
-    {"name": "Halima", "age": 32},
-    {"name": "Hakeem", "age": 27},
-    {"name": "Afeez", "age": 25},
-    {"name": "Babatunde", "age": 30},
-    {"name": "Babawande", "age": 22},
-    {"name": "Davido", "age": 35},
-    {"name": "Evelyn", "age": 48},
-    {"name": "Memunat", "age": 32},
-    {"name": "Aanu", "age": 27},
-    {"name": "Joseph", "age": 28},
-    {"name": "James", "age": 32},
-    {"name": "Paul", "age": 47},
-]
+def insert_customers_from_dict_list(session, customers_list):
+    """Receives a list of dictionaries storing customer information and creates corresponding customers in the database.
 
-session = Session()
+    Args:
+	    session (Session): Database session object to be used for the insert operation. 
+	    customers_list (list(dict)): List of dictionaries storing customer information. 
+	    Returns:
+	        String Customers added successfully if successful or an exception string if not successful. 
+	    Usage:
+		    result = insert_customers_from_dict_list(db_session, customers)
+    """
+    try:
+        for customer_dict in customers_list:
+            customer = Customer(name=customer_dict['name'], age=customer_dict['age'])
+            session.add(customer)
+        session.commit()
+        return "Customers added successfully"
+    except Exception as e:
+        return f"Error occured: {e}"
 
-for customer_dict in customers_list:
-    customer = Customer(name=customer_dict['name'], age=customer_dict['age'])
-    session.add(customer)
+if __name__ == "__main__":
+    Session = __import__("config").Session
+    load = __import__("json").load
 
-session.commit()
-session.close()
+    try:
+        with Session() as db_session, open("customers.json", "r", encoding="utf-8") as f:
+            customers = load(f)
+            result = insert_customers_from_dict_list(db_session, customers)
+            print(result)
+    except Exception as e:
+        print(e)

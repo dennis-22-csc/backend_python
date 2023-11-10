@@ -19,13 +19,13 @@ def get_users(session):
     Returns:
         A list of user objects or an empty list if successful or an exception string if unsuccessful.
     Usage:
-        result = get_users(session
+        result = get_users(session)
     """
 
     try:
         return session.query(User).all()
     except Exception as e:
-        return "Error occurred: {}".format(e)
+        return f"Error occurred: {e}"
 
 def get_profiles(session):
     """Gets profile from the database.
@@ -40,7 +40,7 @@ def get_profiles(session):
     try:
         return session.query(Profile).all()
     except Exception as e:
-        return "Error occurred: {}".format(e)
+        return f"Error occurred: {e}"
 
 if __name__ == "__main__":
     Session = __import__("config").Session
@@ -51,7 +51,7 @@ if __name__ == "__main__":
             if result:
                 print("User data")
                 for user in result:
-                    print("id: {}, username: {}, profile_id: {}".format(user.id, user.username, user.profile_id))
+                    print(f"id: {user.id}, username: {user.username}, profile_id: {user.profile_id}")
             else:
                 print("No user saved yet")
         else:
@@ -63,7 +63,7 @@ if __name__ == "__main__":
             if result:
                 print("Profile data")
                 for profile in result:
-                    print("id: {}, full name: {}".format(profile.id, profile.full_name))
+                    print(f"id: {profile.id}, full name: {profile.full_name}")
             else:
                 print("No user profile saved yet")
         else:
