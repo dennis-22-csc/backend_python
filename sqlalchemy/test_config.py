@@ -1,6 +1,6 @@
 """
 
-This module provides SQLAlchemy utilities for working with a MYSQL database.
+This module provides SQLAlchemy utilities for working with a MYSQL database for testing purposes.
 
 It includes functionality for creating an SQLAlchemy engine, defining a declarative base class, and creating a session maker.
 
@@ -17,9 +17,9 @@ load_dotenv()
 
 # Get the values from environment variables
 db_host = os.getenv('DB_HOST')
-db_user = os.getenv('DB_USER_DEV')
-db_password = os.getenv('DB_PASSWORD_DEV')
-db_name = os.getenv('DB_DATABASE_DEV')
+db_user = os.getenv('DB_USER_TEST')
+db_password = os.getenv('DB_PASSWORD_TEST')
+db_name = os.getenv('DB_DATABASE_TEST')
 
 
 # Create SQLAlchemy engine 

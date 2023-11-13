@@ -1,8 +1,8 @@
 """
 
-This module defines SQLAlchemy models for User and Profile for a database.
+This module defines SQLAlchemy models for a database.
 
-It includes the User and Profile classes which are ORM models mapped to database tables.
+It includes classes which are ORM models mapped to database tables.
 
 """
 
@@ -23,8 +23,8 @@ class User(Base):
     """
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
-    username = Column(String(255))
-    profile_id = Column(Integer, ForeignKey('profiles.id'))
+    username = Column(String(255), nullable=False)
+    profile_id = Column(Integer, ForeignKey('profiles.id'), nullable=False)
     profile = relationship('Profile', uselist=False, back_populates='user')
 
 class Profile(Base):
@@ -39,9 +39,13 @@ class Profile(Base):
     """
     __tablename__ = 'profiles'
     id = Column(Integer, primary_key=True)
-    full_name = Column(String(255))
+    full_name = Column(String(255), nullable=False)
     user = relationship('User', back_populates='profile')
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> b4ac25981247b3d14c48334a354c0f6768e1565d
 class Customer(Base):
     """
     SQLAlchemy model representing customer information in a 'customers' table.
@@ -54,6 +58,8 @@ class Customer(Base):
     """
     __tablename__ = 'customers'
     id = Column(Integer, primary_key=True)
-    name = Column(String(25))
-    age = Column(Integer)
-
+<<<<<<< HEAD
+=======
+    name = Column(String(25), nullable=False)
+    age = Column(Integer, nullable=False)
+>>>>>>> b4ac25981247b3d14c48334a354c0f6768e1565d
