@@ -41,3 +41,19 @@ class Profile(Base):
     id = Column(Integer, primary_key=True)
     full_name = Column(String(255))
     user = relationship('User', back_populates='profile')
+
+class Customer(Base):
+    """
+    SQLAlchemy model representing customer information in a 'customers' table.
+
+    Atrributes:
+        id (int): Primary key for users table.
+        name (str): Customer's name.
+        age (int): Customer's age.
+    
+    """
+    __tablename__ = 'customers'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(25))
+    age = Column(Integer)
+
