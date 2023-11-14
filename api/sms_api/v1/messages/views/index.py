@@ -61,7 +61,9 @@ def send_sms_endpoint():
     if not isinstance(request_data["message"], str):
         error_info = ["Bad Request", "The value of the 'message' field must be a string."]
         abort(400, error_info)
-
+    if len(request_data.keys()) > 2:
+        error_info = ["Bad Request", "You can't have more than two fields in the request json."]
+        abort(400, error_info)
     response = send_sms(request_data)
     return jsonify(response), 201
 

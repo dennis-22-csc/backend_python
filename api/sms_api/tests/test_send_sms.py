@@ -111,4 +111,29 @@ class SendSmsTest(unittest.TestCase):
         self.assertEqual(response_data_dict["code"], 400)
         self.assertEqual(response_data_dict["reason"], "Bad Request")
         self.assertEqual(response_data_dict["message"], "The value of the 'message' field must be a string.")  
-  
+    def test_send_sms_endpoint_more_than_two_fields(self):
+        """Tests the send sms endpoint when more than two keys in request json."""
+        pay_load = {"to": ["+5018105654558"], "message": "hey there", "name": "Dennis"}
+        response = self.app.post('/v1/messages/sms', json=pay_load)
+        self.assertEqual(response.status_code, 400)
+        response_data_dict = json.loads(response.data.decode('utf-8'))
+        self.assertIn("code", response_data_dict)
+        self.assertIn("reason", response_data_dict)
+        self.assertIn("message", response_data_dict)
+        self.assertEqual(response_data_dict["code"], 400)
+        self.assertEqual(response_data_dict["reason"], "Bad Request")
+        self.assertEqual(response_data_dict["message"], "You can't have more than two fields in the request json.")
+
+    def test_send_sms_endpoint_when_to_two_numbers_in_list(self):
+        """Tests the send sms endpoint when to contains two phone number strings in list."""
+        pay_load = {"to": ["2", "+5018105654558"], "message": "hey there"}
+        response = self.app.post('/v1/messages/sms', json=pay_load)
+        self.assertEqual(response.status_code, 201)
+        response_data_dict = json.loads(response.data.decode('utf-8'))
+        response_data_dict_item_length = len(response_data_dict["messages"])
+        self.assertEqual(response_data_dict_item_length, 2)
+        response_data_dict_item1_delivery_status = response_data_dict["messages"][0]["deliveryStatus"]
+        self.assertEqual(response_data_dict_item1_delivery_status, "NotDelivered")
+        response_data_dict_item2_delivery_status = response_data_dict["messages"][1]["deliveryStatus"]
+        self.assertEqual(response_data_dict_item2_delivery_status, "DeliveredToNetwork")
+        
