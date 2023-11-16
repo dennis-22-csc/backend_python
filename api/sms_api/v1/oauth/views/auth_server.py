@@ -6,7 +6,7 @@ import hashlib
 import time
 import base64
 import secrets
-from v1.oauth.views.utils import hash_password, generate_client_secret, generate_auth_code, save_obj, email_client, client_exist
+from v1.oauth.views.utils import hash_password, generate_client_secret, generate_auth_code, save_obj, email_client, client_exist, update_obj
 from flask import abort
 from models.api_client import Client
 from models.auth_code import AuthCode
@@ -79,3 +79,13 @@ class AuthServer():
         # Construct the access token by combining the timestamp, random part, and signature
         access_token = f"{timestamp}.{random_part}.{signature_base64}"
         return {'access_token': access_token, 'expires_in': 900}
+        
+    def generate_new_client_secret(self, email):
+        new_secret = generate_client_secret()
+        new_obj = update_obj(Client, {"secret": new_secret}, email)
+        return {"client_id": new_obj.id, "new_client_secret": new_obj.secret}
+        
+    def generate_new_client_password(self, email, new_password):
+        hashed_password = hash_password(new_password).decode("utf-8")
+        new_obj = update_obj(Client, {"password": hashed_password}, email)
+        return {"client_id": new_obj.id, "new_client_password": new_obj.password}

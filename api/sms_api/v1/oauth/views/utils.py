@@ -39,6 +39,19 @@ def save_obj(class_name, obj_dict):
     new_obj = class_name(**obj_dict)
     new_obj.save()
     return new_obj
+    
+def update_obj(class_name, info_dict, email):
+    objs = storage.all(class_name)
+    for obj in objs.values():
+    	if email  == obj.email:
+    		new_obj_dict = obj.to_dict()
+    		for key in info_dict:
+    			if key == "id":
+    				continue
+    			new_obj_dict[key] = info_dict[key]
+    		new_obj = class_name(**new_obj_dict)
+    		new_obj.save()
+    		return new_obj 
 
 def hash_password(password):
     """Hashes a password using a random salt.
@@ -77,7 +90,7 @@ def generate_auth_code(client_email):
     - str: The generated auth code.
     """
     auth_code = str(secrets.randbelow(1000000)).zfill(6)
-    return {"code": auth_code, "client_email": client_email, "expires_in": 900}
+    return {"code": auth_code, "client_email": client_email, "expires_in": 200900}
 
 def validate_auth_code(code, email):
     """
