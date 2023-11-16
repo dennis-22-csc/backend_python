@@ -3,7 +3,7 @@
 from v1.messages.views import app_views
 from flask import jsonify, abort, request
 from v1.messages.views.handlers import send_sms
-from v1.oauth.views.utils import validate_token, has_expired, delete_token
+from v1.oauth.views.utils import validate_token, has_expired, delete_obj
 
 @app_views.route('/status', methods=['GET'], strict_slashes=False)
 def status():
@@ -47,7 +47,7 @@ def send_sms_endpoint():
         error_info = ["Unauthorized", "Please provide a valid access token."]
         abort(401, error_info)
     if has_expired(val_access_token):
-        delete_token(val_access_token)
+        delete_obj(val_access_token)
         error_info = ["Unauthorized", "Access token has expired."]
         abort(401, error_info)
     if 'to' not in request_data or 'message' not in request_data:

@@ -2,13 +2,10 @@ import json
 from flask import Flask, Response
 from v1.oauth.views import app_views
 from os import environ
-from v1.oauth.config import GMAIL_SMTP_SETTINGS
-
 
 app = Flask(__name__)
 app.register_blueprint(app_views)
 app.json.sort_keys = False
-app.config["GMAIL_SMTP_SETTINGS"] = GMAIL_SMTP_SETTINGS
 
 def handle_error(error):
     """
@@ -38,6 +35,7 @@ app.errorhandler(400)(handle_error)
 app.errorhandler(500)(handle_error)
 app.errorhandler(404)(handle_error)
 app.errorhandler(401)(handle_error)
+app.errorhandler(415)(handle_error)
 
 
 if __name__ == "__main__":

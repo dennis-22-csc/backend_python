@@ -1,17 +1,20 @@
 import smtplib
-from v1.oauth.views.email_service import EmailService
-from email.mime.text import MIMEText
-from email.utils import formataddr
-f
-class GmailSMTPService(EmailService):
-    def __init__(self, settings):
-        self.host = settings['GMAIL_HOST']
-        self.port = settings['GMAIL_PORT']
-        self.username = settings['GMAIL_USERNAME']
-        self.password = settings['GMAIL_PASSWORD']
-        self.email = settings['GMAIL_ADDRESS']
-        self.org_name = "DennisCode"
+from email.mime.text import MIMEText
+from flask import abort
+from email.utils import formataddr
+import os
 
+from dotenv import load_dotenv
+
+class GmailSMTPService:
+    def __init__(self):
+        self.host = os.getenv('GMAIL_HOST')
+        self.port = os.getenv('GMAIL_PORT')
+        self.username = os.getenv('GMAIL_USERNAME')
+        self.password = os.getenv('GMAIL_PASSWORD')
+        self.email = os.getenv('GMAIL_ADDRESS')
+        self.org_name = os.getenv('C')
+        
     def send_email(self, to_address, subject, body):
         try:	
             # Configure smtp server 
@@ -22,7 +25,7 @@ class GmailSMTPService(EmailService):
             # Construct the message 
             message = MIMEText(body)
             message['Subject'] = subject
-            message['From'] = formataddr(self.org_name, self.email)
+            message['From'] = formataddr((self.org_name, self.email))
             message['To'] = to_address
 
             # Send the email
@@ -30,7 +33,9 @@ class GmailSMTPService(EmailService):
 
             # Disconnect from the server
             smtp_connection.quit()
-        except smtplib.SMTPException as error:
-            pass
+            
+        except smtplib.SMTPException:
+            error_info = ["Email Error", "Error occurred in emailing code"]
+            abort(500, error_info)
 
 
