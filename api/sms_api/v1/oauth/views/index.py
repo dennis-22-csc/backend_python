@@ -150,28 +150,27 @@ def gen_new_secret():
         error_info = ["Bad Request", "The 'email' field is required in the request body."]
         abort(400, error_info)
     if not request_data["email"]:
-        error_info = ["Bad Request", "The 'email' must not contain an empty value."]
+        error_info = ["Bad Request", "The 'email' field must not contain an empty value."]
         abort(400, error_info)
     if not isinstance(request_data["email"], str):
         error_info = ["Bad Request", "The value of the 'email' field must be a string."]
         abort(400, error_info)
     if len(request_data.keys()) > 1:
-        error_info = ["Bad Request", "You can't have more than the email field in the request json."]
+        error_info = ["Bad Request", "You can't have more than one field in the request json."]
         abort(400, error_info)
-    if not client_exist(request_data["email"]):
-        error_info = ["Unauthorized", "You are not an existing client."]
-        abort(401, error_info)
     if not auth_code:
         error_info = ["Unauthorized", "Please provide an authorization code."]
         abort(401, error_info)
     val_auth_code = validate_auth_code(auth_code, request_data["email"])
     if not val_auth_code:
-
         error_info = ["Unauthorized", "Please provide a valid authorization code."]
         abort(401, error_info)
     if has_expired(val_auth_code):
         delete_obj(val_auth_code)
         error_info = ["Unauthorized", "Authorization code has expired."]
+        abort(401, error_info)
+    if not client_exist(request_data["email"]):
+        error_info = ["Unauthorized", "You are not an existing client."]
         abort(401, error_info)
     auth_server = AuthServer()
     response = auth_server.generate_new_client_secret(request_data["email"])
@@ -208,17 +207,14 @@ def gen_new_password():
 
         abort(400, error_info)
     if not isinstance(request_data["email"], str) or not isinstance(request_data["password"], str):
-        error_info = ["Bad Request", "The value of the 'email' and 'password' fields must be a string."]
+        error_info = ["Bad Request", "The value of 'email' and 'password' fields must be strings."]
 
         abort(400, error_info)
     if len(request_data.keys()) > 2:
         error_info = ["Bad Request", "You can't have more than two fields in the request json."]
 
         abort(400, error_info)
-    if not client_exist(request_data["email"]):
-        error_info = ["Unauthorized", "You are not an existing client."]
-
-        abort(401, error_info)
+   
     if not auth_code:
         error_info = ["Unauthorized", "Please provide an authorization code."]
         abort(401, error_info)
@@ -232,6 +228,10 @@ def gen_new_password():
     if has_expired(val_auth_code):
         delete_obj(val_auth_code)
         error_info = ["Unauthorized", "Authorization code has expired."]
+        abort(401, error_info)
+    if not client_exist(request_data["email"]):
+        error_info = ["Unauthorized", "You are not an existing client."]
+
         abort(401, error_info)
     auth_server = AuthServer()
     response = auth_server.generate_new_client_password(request_data["email"], request_data["password"])

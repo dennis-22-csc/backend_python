@@ -15,6 +15,7 @@ class FileStorage:
     __file_path = "file.json"
     __objects = {}
 
+    __classes = {"AccessToken": AccessToken, "AuthCode": AuthCode, "Client": Client}
     
     def all(self, cls=None):
         """Return a dictionary of instantiated objects in __objects.
@@ -69,7 +70,7 @@ class FileStorage:
         Returns the object based on the class name and its ID, or
         None if not found
         """
-        if cls not in classes.values():
+        if cls not in self.__classes.values():
             return None
 
         all_cls = self.all(cls)
