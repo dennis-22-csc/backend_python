@@ -2,7 +2,8 @@
 
 from v1.messages.views import app_views
 from flask import jsonify, abort, request
-from v1.messages.views.handlers import send_sms 
+from v1.messages.views.handlers import send_sms
+from v1.oauth.views.utils import validate_token, has_expired, delete_token
 
 @app_views.route('/status', methods=['GET'], strict_slashes=False)
 def status():
@@ -27,25 +28,28 @@ def send_sms_endpoint():
 
     Receives a JSON payload with 'to' and 'message' fields and sends an SMS.
 
-    Args:
-        None
-
     Returns:
         tuple: A tuple containing a JSON-formatted Response and the HTTP status code.
 
     Raises:
-        400 Bad Request: If the required fields are missing or have empty values,
-                        or if 'to' is not a list or contains invalid elements.
+        400 Bad Request: If the required fields are missing or have empty values, among others.
+        401 Unauthorized: If an access token is not provided, or is invalid, or has expired.
 
-    Example:
-        Example usage when making a POST request to send an SMS:
-        >>> import requests
-        >>> data = {"to": ["1234567890"], "message": "Hello, world!"}
-        >>> response = requests.post("http://example.com/sms", json=data)
-        >>> print(response.status_code, response.json())
     """
     request_data = request.json
-
+    access_token = request.headers.get("Authorization")
+    
+    if not access_token:
+        error_info = ["Unauthorized", "Please provide an access token."]
+        abort(401, error_info)
+    val_access_token = validate_token(access_token)
+    if not val_access_token:
+        error_info = ["Unauthorized", "Please provide a valid access token."]
+        abort(401, error_info)
+    if has_expired(val_access_token):
+        delete_token(val_access_token)
+        error_info = ["Unauthorized", "Access token has expired."]
+        abort(401, error_info)
     if 'to' not in request_data or 'message' not in request_data:
         error_info = ["Bad Request", "The 'to' and 'message' fields are required in the request body."]
         abort(400, error_info)

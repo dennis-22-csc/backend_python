@@ -1,11 +1,14 @@
-from flask import Flask, Response
-from v1.messages.views import app_views
-from os import environ
 import json
+from flask import Flask, Response
+from v1.oauth.views import app_views
+from os import environ
+from v1.oauth.config import GMAIL_SMTP_SETTINGS
+
 
 app = Flask(__name__)
 app.register_blueprint(app_views)
 app.json.sort_keys = False
+app.config["GMAIL_SMTP_SETTINGS"] = GMAIL_SMTP_SETTINGS
 
 def handle_error(error):
     """
@@ -36,11 +39,12 @@ app.errorhandler(500)(handle_error)
 app.errorhandler(404)(handle_error)
 app.errorhandler(401)(handle_error)
 
+
 if __name__ == "__main__":
     """
-    This script runs a Flask application for an SMS API.
+    This script runs a Flask application for the authentication component of an SMS API.
 
-    It registers blueprints, sets up the host and port, and runs the application.
+    It sets up the host and port, and runs the application.
 
     Environment Variables:
         - SMS_API_HOST: Host IP address to run the API (default: '0.0.0.0')
