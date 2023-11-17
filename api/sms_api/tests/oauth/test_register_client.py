@@ -46,16 +46,16 @@ class RegisterClientTest(unittest.TestCase):
     	pass
     
     @parameterized.expand([
-        ({"email": "dennisakpotaire@gmail.com", "password": "12345"}, 400, "Bad Request", "The 'full_name', 'email', and 'password' fields are required in the request body."),
-        ({"full_name": "", "email": "dennisakpotaire@gmail.com", "password": "12345"}, 400, "Bad Request", "The 'full_name', 'email', and 'password' fields must not contain empty values."),
-        ({"full_name": ["Akpotaire Dennis"], "email": "dennisakpotaire@gmail.com", "password": "12345"}, 400, "Bad Request", "The value of the 'full_name', 'email', and 'password' fields must be strings."),
-        ({"full_name": "Akpotaire Dennis", "password": "12345"}, 400, "Bad Request", "The 'full_name', 'email', and 'password' fields are required in the request body."),
-    	({"full_name": "Akpotaire Dennis","email": "", "password": "12345"}, 400, "Bad Request", "The 'full_name', 'email', and 'password' fields must not contain empty values."),
-    	({"full_name": "Akpotaire Dennis","email": True, "password": "12345"}, 400, "Bad Request", "The value of the 'full_name', 'email', and 'password' fields must be strings."), 
-    	({"full_name": "Akpotaire Dennis", "email": "dennisakpotaire@gmail.com"}, 400, "Bad Request", "The 'full_name', 'email', and 'password' fields are required in the request body."),
-    	({"full_name": "Akpotaire Dennis","email": "dennisakpotaire@gmail.com", "password": ""}, 400, "Bad Request", "The 'full_name', 'email', and 'password' fields must not contain empty values."),
-    	({"full_name": "Akpotaire Dennis", "email": "dennisakpotaire@gmail.com", "password": 12345}, 400, "Bad Request",  "The value of the 'full_name', 'email', and 'password' fields must be strings."),
-    	({"full_name": "Akpotaire Dennis", "email": "dennisakpotaire@gmail.com", "password": "12345", "sex": "male"}, 400, "Bad Request", "You can't have more than three fields in the request json.")
+        ({"email": "dennisakpotaire@gmail.com", "password": "12345"}, 400, "Bad Request", "The 'full_name', 'email', and 'password' fields are required in the request body."), # no full_name
+        ({"full_name": "", "email": "dennisakpotaire@gmail.com", "password": "12345"}, 400, "Bad Request", "The 'full_name', 'email', and 'password' fields must not contain empty values."), # empty full_name
+        ({"full_name": ["Akpotaire Dennis"], "email": "dennisakpotaire@gmail.com", "password": "12345"}, 400, "Bad Request", "The value of the 'full_name', 'email', and 'password' fields must be strings."), # full_name not string
+        ({"full_name": "Akpotaire Dennis", "password": "12345"}, 400, "Bad Request", "The 'full_name', 'email', and 'password' fields are required in the request body."), # no email
+    	({"full_name": "Akpotaire Dennis","email": "", "password": "12345"}, 400, "Bad Request", "The 'full_name', 'email', and 'password' fields must not contain empty values."), # empty email
+    	({"full_name": "Akpotaire Dennis","email": True, "password": "12345"}, 400, "Bad Request", "The value of the 'full_name', 'email', and 'password' fields must be strings."), # email is not string
+    	({"full_name": "Akpotaire Dennis", "email": "dennisakpotaire@gmail.com"}, 400, "Bad Request", "The 'full_name', 'email', and 'password' fields are required in the request body."),# no password
+    	({"full_name": "Akpotaire Dennis","email": "dennisakpotaire@gmail.com", "password": ""}, 400, "Bad Request", "The 'full_name', 'email', and 'password' fields must not contain empty values."), # empty password
+    	({"full_name": "Akpotaire Dennis", "email": "dennisakpotaire@gmail.com", "password": 12345}, 400, "Bad Request",  "The value of the 'full_name', 'email', and 'password' fields must be strings."), # password is not string
+    	({"full_name": "Akpotaire Dennis", "email": "dennisakpotaire@gmail.com", "password": "12345", "sex": "male"}, 400, "Bad Request", "You can't have more than three fields in the request json.") # more than three fields in request body
     ])
     def test_register_client_endpoint_for_full_name_email_password_edge_cases(self, pay_load, expected_code, expected_reason, expected_message):
         """Test the register_client_endpoint for full_name, email and password associated edge cases."""
@@ -71,21 +71,21 @@ class RegisterClientTest(unittest.TestCase):
         self.assertEqual(response_data_dict["message"], expected_message)
         delete_obj(self.auth_code_obj)
     
-    
-    def test_register_client_endpoint_correct_input(self):
+    @parameterized.expand([
+    	({"full_name": "Akpotaire Dennis", "email": "dennisakpotaire@gmail.com", "password": "12345"}, 201, 3), 
+    ])
+    def test_register_client_endpoint_correct_input(self, pay_load, expected_code, expected_length):
         """Test endpoint for correct input."""
         from models import storage 
         
-        pay_load = {"full_name": "Akpotaire Dennis", "email": "dennisakpotaire@gmail.com", "password": "12345"}
-        
         response = self.app.post('/v1/oauth/register_client', json=pay_load, headers=self.header)
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, expected_code)
         response_data_dict = json.loads(response.data.decode('utf-8'))
         self.assertIn("status", response_data_dict)
         self.assertIn("client_id", response_data_dict)
         self.assertIn("client_secret", response_data_dict)
         response_data_dict_length = len(response_data_dict.keys())
-        self.assertEqual(response_data_dict_length, 3)
+        self.assertEqual(response_data_dict_length, expected_length)
         delete_obj(self.auth_code_obj)
         delete_obj(storage.get(Client, response_data_dict["client_id"]))
         
