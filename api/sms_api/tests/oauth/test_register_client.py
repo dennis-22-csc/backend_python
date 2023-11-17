@@ -41,9 +41,9 @@ class RegisterClientTest(unittest.TestCase):
         self.assertEqual(response_data_dict["message"], expected_message)
         delete_obj(self.auth_code_obj)
     
-    @unittest.skip("Couldn't get it implemnted.")
-    def test_register_client_endpoint_when_auth_code_expired(self):
-    	pass
+    #@unittest.skip("Couldn't get it implemnted yet.")
+    #def test_register_client_endpoint_when_auth_code_expired(self):
+    	#pass
     
     @parameterized.expand([
         ({"email": "dennisakpotaire@gmail.com", "password": "12345"}, 400, "Bad Request", "The 'full_name', 'email', and 'password' fields are required in the request body."), # no full_name
