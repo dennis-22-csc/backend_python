@@ -4,6 +4,7 @@ from v1.oauth.views import app_views
 from flask import jsonify, abort, request, current_app
 from v1.oauth.views.utils import save_obj, validate_auth_code, has_expired, delete_obj, client_exist
 from v1.oauth.views.auth_server import AuthServer
+from models.auth_code import AuthCode
 
 @app_views.route('/access_token', methods=['POST'], strict_slashes=False)
 def access_token():
@@ -77,6 +78,12 @@ def gen_auth_code():
         error_info = ["Bad Request", "You can't have more than the email field in the request json."]
         abort(400, error_info)
     auth_server = AuthServer()
+    auth_code = auth_server.generate_auth_code(request_data["email"])
+    saved_code = save_obj(AuthCode, auth_code)
+    if not saved_code:
+        error_info = ["Internal Server Error", "An error occurred in the process of generating auth code."]
+        abort(500, error_info)
+          
     auth_server.send_auth_code(request_data["email"])
     return jsonify({"Success": "Authorization code sent to email"}), 201
 

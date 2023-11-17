@@ -6,7 +6,7 @@ import hashlib
 import time
 import base64
 import secrets
-from v1.oauth.views.utils import hash_password, generate_client_secret, generate_auth_code, save_obj, email_client, client_exist, update_obj
+from v1.oauth.views.utils import hash_password, save_obj, email_client, client_exist, update_obj
 from flask import abort
 from models.api_client import Client
 from models.auth_code import AuthCode
@@ -18,11 +18,6 @@ class AuthServer():
         self.client_ids = ["1", "2", "3"]
         self.client_secrets = ["4", "5", "6"]
     def send_auth_code(self, client_email):
-        auth_code = generate_auth_code(client_email)
-        saved_code = save_obj(AuthCode, auth_code)
-        if not saved_code:
-            error_info = ["Internal Server Error", "An error occurred in the process of generating auth code."]
-            abort(500, error_info)
         email_subject = "Authorization Code"
         email_body = f"Hi there,\n\n"
         email_body += f"You recently requested for an authorization code for the DennisCode SMS API.\n"
@@ -38,7 +33,7 @@ class AuthServer():
             error_info = ["Internal Server Error", "Email address already exists."]
             abort(500, error_info)
         client_payload["password"] = hash_password(client_payload["password"]).decode("utf-8")
-        client_payload["secret"] = generate_client_secret()
+        client_payload["secret"] = self.generate_client_secret()
         saved_client = save_obj(Client, client_payload)
         if not saved_client:
             error_info = ["Internal Server Error", "An error occurred in the process of registering your info."]
@@ -79,9 +74,31 @@ class AuthServer():
         # Construct the access token by combining the timestamp, random part, and signature
         access_token = f"{timestamp}.{random_part}.{signature_base64}"
         return {'access_token': access_token, 'expires_in': 900}
-        
+    def generate_auth_code(self, client_email):
+        """
+        Generates a six-digit authorization code.
+
+        Returns:
+            str: The generated auth code.
+        """
+        auth_code = str(secrets.randbelow(1000000)).zfill(6)
+        return {"code": auth_code, "client_email": client_email, "expires_in": 200900}
+   
+    def generate_client_secret(self, length=32):
+        """
+        Generate a random client secret.
+
+        Args:
+            length (int): The length of the client secret.
+
+        Returns:
+            str: The generated client secret.
+        """
+        client_secret = secrets.token_urlsafe(length)
+        return client_secret
+
     def generate_new_client_secret(self, email):
-        new_secret = generate_client_secret()
+        new_secret = self.generate_client_secret()
         new_obj = update_obj(Client, {"secret": new_secret}, email)
         return {"client_id": new_obj.id, "new_client_secret": new_obj.secret}
         

@@ -63,35 +63,11 @@ def is_valid_password(hashed_password, password):
     """Checks if the hashed password was formed from the given password.
     """
     return bcrypt.checkpw(password.encode('utf-8'), hashed_password)
-   
-def generate_client_secret(length=32):
-    """
-    Generate a random client secret.
-
-    Args:
-    - length (int): The length of the client secret.
-
-    Returns:
-    - str: The generated client secret.
-    """
-    client_secret = secrets.token_urlsafe(length)
-    return client_secret
-
 
 def email_client(client_address, subject, body):
     email_service = EmailService.create_email_service("gmail")
     email_service.send_email(client_address, subject, body) 
 	
-def generate_auth_code(client_email):
-    """
-    Generates a six-digit authorization code.
-
-    Returns:
-    - str: The generated auth code.
-    """
-    auth_code = str(secrets.randbelow(1000000)).zfill(6)
-    return {"code": auth_code, "client_email": client_email, "expires_in": 200900}
-
 def validate_auth_code(code, email):
     """
     Checks if auth code exists for client.
