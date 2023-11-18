@@ -7,6 +7,7 @@ from v1.oauth.app import app
 from v1.oauth.views.utils import delete_obj
 from models.auth_code import AuthCode
 from models.api_client import Client
+from parameterized import parameterized
 
 class RegisterClientTest(unittest.TestCase):
     """This tests the register client endpoint."""
@@ -17,218 +18,74 @@ class RegisterClientTest(unittest.TestCase):
         self.auth_code = self.auth_code_obj.code
         self.header = {'Authorization': self.auth_code}
         
-    def test_register_client_endpoint_when_auth_code_missing(self):
-        """Test endpoint when auth code is omitted from the request."""
-        
-        pay_load = {"full_name": "Akpotaire Dennis", "email": "dennisakpotaire@gmail.com", "password": "12345"}
-        
-        response = self.app.post('/v1/oauth/register_client', json=pay_load)
-        self.assertEqual(response.status_code, 401)
+    @parameterized.expand([
+      	("no_auth", {"full_name": "Akpotaire Dennis", "email": "dennisakpotaire@gmail.com", "password": "12345"}, 401, "Unauthorized", "Please provide an authorization code."),
+        ("invalid_auth", {"full_name": "Dennis Koko", "email": "denniskoko@gmail.com", "password": "12345"}, 401, "Unauthorized", "Please provide a valid authorization code."),
+    ])
+    def test_register_client_endpoint_when_auth_code_invalid(self,  case_name, pay_load, expected_code, expected_reason, expected_message):
+        """Test endpoint for auth code related edge cases."""
+        response = None
+        if case_name == "no_auth":
+            response = self.app.post('/v1/oauth/register_client', json=pay_load)
+        elif case_name == "invalid_auth":
+            auth_code = {"code": "746341", "client_email": "denniskoko@gmail.com", "expires_in": 2000}
+            header = {'Authorization': auth_code["code"]}
+            response = self.app.post('/v1/oauth/register_client', headers=header, json=pay_load)
+        self.assertEqual(response.status_code, expected_code)
         response_data_dict = json.loads(response.data.decode('utf-8'))
         self.assertIn("code", response_data_dict)
         self.assertIn("reason", response_data_dict)
         self.assertIn("message", response_data_dict)
-        self.assertEqual(response_data_dict["code"], 401)
-        self.assertEqual(response_data_dict["reason"], "Unauthorized")
-        self.assertEqual(response_data_dict["message"], "Please provide an authorization code.")
-        delete_obj(self.auth_code_obj)
-        
-    def test_register_client_endpoint_when_auth_code_invalid(self):
-        """Test endpoint for auth code that doesn't exist in the server."""
-        auth_code = {"code": "746341", "client_email": "denniskoko@gmail.com", "expires_in": 2000}
-        header = {'Authorization': auth_code["code"]}
-
-        pay_load = {"full_name": "Dennis Koko", "email": "denniskoko@gmail.com", "password": "12345"}
-        
-        response = self.app.post('/v1/oauth/register_client', headers=header, json=pay_load)
-        self.assertEqual(response.status_code, 401)
-        response_data_dict = json.loads(response.data.decode('utf-8'))
-        self.assertIn("code", response_data_dict)
-        self.assertIn("reason", response_data_dict)
-        self.assertIn("message", response_data_dict)
-        self.assertEqual(response_data_dict["code"], 401)
-        self.assertEqual(response_data_dict["reason"], "Unauthorized")
-        self.assertEqual(response_data_dict["message"], "Please provide a valid authorization code.")
+        self.assertEqual(response_data_dict["code"], expected_code)
+        self.assertEqual(response_data_dict["reason"], expected_reason)
+        self.assertEqual(response_data_dict["message"], expected_message)
         delete_obj(self.auth_code_obj)
     
-    @unittest.skip("Couldn't get it implemnted.")
-    def test_register_client_endpoint_when_auth_code_expired(self):
-    	pass
+    #@unittest.skip("Couldn't get it implemnted yet.")
+    #def test_register_client_endpoint_when_auth_code_expired(self):
+    	#pass
     
-    def test_register_client_endpoint_when_full_name_missing(self):
-        """Test endpoint when full name is omitted from the request."""
-        
-        pay_load = {"email": "dennisakpotaire@gmail.com", "password": "12345"}
+    @parameterized.expand([
+        ({"email": "dennisakpotaire@gmail.com", "password": "12345"}, 400, "Bad Request", "The 'full_name', 'email', and 'password' fields are required in the request body."), # no full_name
+        ({"full_name": "", "email": "dennisakpotaire@gmail.com", "password": "12345"}, 400, "Bad Request", "The 'full_name', 'email', and 'password' fields must not contain empty values."), # empty full_name
+        ({"full_name": ["Akpotaire Dennis"], "email": "dennisakpotaire@gmail.com", "password": "12345"}, 400, "Bad Request", "The value of the 'full_name', 'email', and 'password' fields must be strings."), # full_name not string
+        ({"full_name": "Akpotaire Dennis", "password": "12345"}, 400, "Bad Request", "The 'full_name', 'email', and 'password' fields are required in the request body."), # no email
+    	({"full_name": "Akpotaire Dennis","email": "", "password": "12345"}, 400, "Bad Request", "The 'full_name', 'email', and 'password' fields must not contain empty values."), # empty email
+    	({"full_name": "Akpotaire Dennis","email": True, "password": "12345"}, 400, "Bad Request", "The value of the 'full_name', 'email', and 'password' fields must be strings."), # email is not string
+    	({"full_name": "Akpotaire Dennis", "email": "dennisakpotaire@gmail.com"}, 400, "Bad Request", "The 'full_name', 'email', and 'password' fields are required in the request body."),# no password
+    	({"full_name": "Akpotaire Dennis","email": "dennisakpotaire@gmail.com", "password": ""}, 400, "Bad Request", "The 'full_name', 'email', and 'password' fields must not contain empty values."), # empty password
+    	({"full_name": "Akpotaire Dennis", "email": "dennisakpotaire@gmail.com", "password": 12345}, 400, "Bad Request",  "The value of the 'full_name', 'email', and 'password' fields must be strings."), # password is not string
+    	({"full_name": "Akpotaire Dennis", "email": "dennisakpotaire@gmail.com", "password": "12345", "sex": "male"}, 400, "Bad Request", "You can't have more than three fields in the request json.") # more than three fields in request body
+    ])
+    def test_register_client_endpoint_for_full_name_email_password_edge_cases(self, pay_load, expected_code, expected_reason, expected_message):
+        """Test the register_client_endpoint for full_name, email and password associated edge cases."""
         
         response = self.app.post('/v1/oauth/register_client', json=pay_load, headers=self.header)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, expected_code)
         response_data_dict = json.loads(response.data.decode('utf-8'))
         self.assertIn("code", response_data_dict)
         self.assertIn("reason", response_data_dict)
         self.assertIn("message", response_data_dict)
-        self.assertEqual(response_data_dict["code"], 400)
-        self.assertEqual(response_data_dict["reason"], "Bad Request")
-        self.assertEqual(response_data_dict["message"], "The 'full_name', 'email', and 'password' fields are required in the request body.")
+        self.assertEqual(response_data_dict["code"], expected_code)
+        self.assertEqual(response_data_dict["reason"], expected_reason)
+        self.assertEqual(response_data_dict["message"], expected_message)
         delete_obj(self.auth_code_obj)
-
-    def test_register_client_endpoint_when_full_name_empty_string(self):
-        """Test endpoint when full name is an empty string."""
-        
-        pay_load = {"full_name": "","email": "dennisakpotaire@gmail.com", "password": "12345"}
-        
-        response = self.app.post('/v1/oauth/register_client', json=pay_load, headers=self.header)
-        self.assertEqual(response.status_code, 400)
-        response_data_dict = json.loads(response.data.decode('utf-8'))
-        self.assertIn("code", response_data_dict)
-        self.assertIn("reason", response_data_dict)
-        self.assertIn("message", response_data_dict)
-        self.assertEqual(response_data_dict["code"], 400)
-        self.assertEqual(response_data_dict["reason"], "Bad Request")
-        self.assertEqual(response_data_dict["message"],  "The 'full_name', 'email', and 'password' fields must not contain empty values.")
-        delete_obj(self.auth_code_obj)
-
-    def test_register_client_endpoint_when_full_name_is_no_string(self):
-        """Test endpoint when full name is no string."""
-        
-        pay_load = {"full_name": ["Akpotaire Dennis"],"email": "dennisakpotaire@gmail.com", "password": "12345"}
-        
-        response = self.app.post('/v1/oauth/register_client', json=pay_load, headers=self.header)
-        self.assertEqual(response.status_code, 400)
-        response_data_dict = json.loads(response.data.decode('utf-8'))
-        self.assertIn("code", response_data_dict)
-        self.assertIn("reason", response_data_dict)
-        self.assertIn("message", response_data_dict)
-        self.assertEqual(response_data_dict["code"], 400)
-        self.assertEqual(response_data_dict["reason"], "Bad Request")
-        self.assertEqual(response_data_dict["message"],  "The value of the 'full_name', 'email', and 'password' fields must be strings.")
-        delete_obj(self.auth_code_obj)
-        
-    def test_register_client_endpoint_when_email_missing(self):
-        """Test endpoint when email is omitted from the request."""
-        
-        pay_load = {"full_name": "Akpotaire Dennis", "password": "12345"}
-        
-        response = self.app.post('/v1/oauth/register_client', json=pay_load, headers=self.header)
-        self.assertEqual(response.status_code, 400)
-        response_data_dict = json.loads(response.data.decode('utf-8'))
-        self.assertIn("code", response_data_dict)
-        self.assertIn("reason", response_data_dict)
-        self.assertIn("message", response_data_dict)
-        self.assertEqual(response_data_dict["code"], 400)
-        self.assertEqual(response_data_dict["reason"], "Bad Request")
-        self.assertEqual(response_data_dict["message"], "The 'full_name', 'email', and 'password' fields are required in the request body.")
-        delete_obj(self.auth_code_obj)
-
-    def test_register_client_endpoint_when_email_empty_string(self):
-        """Test endpoint when email is an empty string."""
-        
-        pay_load = {"full_name": "Akpotaire Dennis","email": "", "password": "12345"}
-        
-        response = self.app.post('/v1/oauth/register_client', json=pay_load, headers=self.header)
-        self.assertEqual(response.status_code, 400)
-        response_data_dict = json.loads(response.data.decode('utf-8'))
-        self.assertIn("code", response_data_dict)
-        self.assertIn("reason", response_data_dict)
-        self.assertIn("message", response_data_dict)
-        self.assertEqual(response_data_dict["code"], 400)
-        self.assertEqual(response_data_dict["reason"], "Bad Request")
-        self.assertEqual(response_data_dict["message"],  "The 'full_name', 'email', and 'password' fields must not contain empty values.")
-        delete_obj(self.auth_code_obj)
-
-    def test_register_client_endpoint_when_email_is_no_string(self):
-        """Test endpoint when email is no string."""
-        
-        pay_load = {"full_name": "Akpotaire Dennis","email": True, "password": "12345"}
-        
-        response = self.app.post('/v1/oauth/register_client', json=pay_load, headers=self.header)
-        self.assertEqual(response.status_code, 400)
-        response_data_dict = json.loads(response.data.decode('utf-8'))
-        self.assertIn("code", response_data_dict)
-        self.assertIn("reason", response_data_dict)
-        self.assertIn("message", response_data_dict)
-        self.assertEqual(response_data_dict["code"], 400)
-        self.assertEqual(response_data_dict["reason"], "Bad Request")
-        self.assertEqual(response_data_dict["message"],  "The value of the 'full_name', 'email', and 'password' fields must be strings.")
-        delete_obj(self.auth_code_obj)
-        
-    def test_register_client_endpoint_when_password_missing(self):
-        """Test endpoint when password is omitted from the request."""
-        
-        pay_load = {"full_name": "Akpotaire Dennis", "email": "dennisakpotaire@gmail.com"}
-        
-        response = self.app.post('/v1/oauth/register_client', json=pay_load, headers=self.header)
-        self.assertEqual(response.status_code, 400)
-        response_data_dict = json.loads(response.data.decode('utf-8'))
-        self.assertIn("code", response_data_dict)
-        self.assertIn("reason", response_data_dict)
-        self.assertIn("message", response_data_dict)
-        self.assertEqual(response_data_dict["code"], 400)
-        self.assertEqual(response_data_dict["reason"], "Bad Request")
-        self.assertEqual(response_data_dict["message"], "The 'full_name', 'email', and 'password' fields are required in the request body.")
-        delete_obj(self.auth_code_obj)
-
-    def test_register_client_endpoint_when_password_empty_string(self):
-        """Test endpoint when password is an empty string."""
-        
-        pay_load = {"full_name": "Akpotaire Dennis","email": "dennisakpotaire@gmail.com", "password": ""}
-        
-        response = self.app.post('/v1/oauth/register_client', json=pay_load, headers=self.header)
-        self.assertEqual(response.status_code, 400)
-        response_data_dict = json.loads(response.data.decode('utf-8'))
-        self.assertIn("code", response_data_dict)
-        self.assertIn("reason", response_data_dict)
-        self.assertIn("message", response_data_dict)
-        self.assertEqual(response_data_dict["code"], 400)
-        self.assertEqual(response_data_dict["reason"], "Bad Request")
-        self.assertEqual(response_data_dict["message"],  "The 'full_name', 'email', and 'password' fields must not contain empty values.")
-        delete_obj(self.auth_code_obj)
-
-    def test_register_client_endpoint_when_password_is_no_string(self):
-        """Test endpoint when password is an no string."""
-        
-        pay_load = {"full_name": "Akpotaire Dennis", "email": "dennisakpotaire@gmail.com", "password": 12345}
-        
-        response = self.app.post('/v1/oauth/register_client', json=pay_load, headers=self.header)
-        self.assertEqual(response.status_code, 400)
-        response_data_dict = json.loads(response.data.decode('utf-8'))
-        self.assertIn("code", response_data_dict)
-        self.assertIn("reason", response_data_dict)
-        self.assertIn("message", response_data_dict)
-        self.assertEqual(response_data_dict["code"], 400)
-        self.assertEqual(response_data_dict["reason"], "Bad Request")
-        self.assertEqual(response_data_dict["message"],  "The value of the 'full_name', 'email', and 'password' fields must be strings.")
-        delete_obj(self.auth_code_obj)
-        
-    def test_register_client_endpoint_more_than_three_fields(self):
-        """Test endpoint for more than three fields."""
-        
-        pay_load = {"full_name": "Akpotaire Dennis", "email": "dennisakpotaire@gmail.com", "password": "12345", "sex": "male"}
-        
-        response = self.app.post('/v1/oauth/register_client', json=pay_load, headers=self.header)
-        self.assertEqual(response.status_code, 400)
-        response_data_dict = json.loads(response.data.decode('utf-8'))
-        self.assertIn("code", response_data_dict)
-        self.assertIn("reason", response_data_dict)
-        self.assertIn("message", response_data_dict)
-        self.assertEqual(response_data_dict["code"], 400)
-        self.assertEqual(response_data_dict["reason"], "Bad Request")
-        self.assertEqual(response_data_dict["message"], "You can't have more than three fields in the request json.")
-        delete_obj(self.auth_code_obj)
-        
-    def test_register_client_endpoint_correct_input(self):
+    
+    @parameterized.expand([
+    	({"full_name": "Akpotaire Dennis", "email": "dennisakpotaire@gmail.com", "password": "12345"}, 201, 3), 
+    ])
+    def test_register_client_endpoint_correct_input(self, pay_load, expected_code, expected_length):
         """Test endpoint for correct input."""
         from models import storage 
         
-        pay_load = {"full_name": "Akpotaire Dennis", "email": "dennisakpotaire@gmail.com", "password": "12345"}
-        
         response = self.app.post('/v1/oauth/register_client', json=pay_load, headers=self.header)
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, expected_code)
         response_data_dict = json.loads(response.data.decode('utf-8'))
         self.assertIn("status", response_data_dict)
         self.assertIn("client_id", response_data_dict)
         self.assertIn("client_secret", response_data_dict)
         response_data_dict_length = len(response_data_dict.keys())
-        self.assertEqual(response_data_dict_length, 3)
+        self.assertEqual(response_data_dict_length, expected_length)
         delete_obj(self.auth_code_obj)
         delete_obj(storage.get(Client, response_data_dict["client_id"]))
         
