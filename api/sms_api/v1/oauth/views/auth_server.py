@@ -6,7 +6,7 @@ import hashlib
 import time
 import base64
 import secrets
-from v1.oauth.views.utils import hash_password, save_obj, email_client, client_exist, update_obj
+from v1.oauth.views.utils import hash_password, save_obj, email_client, client_exist, update_obj, get_client_ids, get_client_secrets
 from flask import abort
 from models.api_client import Client
 from models.auth_code import AuthCode
@@ -15,8 +15,8 @@ class AuthServer():
     """Defines an authentication server."""
     def __init__(self):
         """Creates instance of an authentication server."""
-        self.client_ids = ["1", "2", "3"]
-        self.client_secrets = ["4", "5", "6"]
+        self.client_ids = get_client_ids()
+        self.client_secrets = get_client_secrets()
     def send_auth_code(self, client_email):
         email_subject = "Authorization Code"
         email_body = f"Hi there,\n\n"

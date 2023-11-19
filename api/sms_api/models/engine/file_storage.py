@@ -50,7 +50,7 @@ class FileStorage:
                     name = o["__class__"]
                     del o["__class__"]
                     self.new(eval(name)(**o))
-        except FileNotFoundError:
+        except (FileNotFoundError, json.decoder.JSONDecodeError):
             pass
 
     def delete(self, obj=None):
