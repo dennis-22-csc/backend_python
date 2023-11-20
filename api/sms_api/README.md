@@ -61,7 +61,8 @@ To test and use this API, follow these steps:
     *Note: The last command will return a JSON response indicating an unauthorized request.*
 
 8. **Get an Access Token:**
-	**Kill the message server and start the auth server:**
+
+    **Kill the message server and start the auth server:**
     ```bash
     $ python3 -m v1.oauth.app
     ```
@@ -71,6 +72,8 @@ To test and use this API, follow these steps:
     $ curl -X POST -H "Content-Type: application/json" -d '{"email": "your_email@example.com"}' http://localhost:5000/v1/oauth/auth_code
     ```
 	**You should get an internal server error response. 
+You're getting it because the auth server relies on an Email SMTP server for sending the authorisation code. You will need to introduce a .env file for that part of the server to work. Thus, skip this part and the register as a client part. You will use my information to generate an access token. *
+	
     **Register as a Client:**
     ```bash
     $ curl -X POST -H 'Authorization: your_authorization_code' -H "Content-Type: application/json" -d '{
@@ -80,17 +83,19 @@ To test and use this API, follow these steps:
         }' http://localhost:5000/v1/oauth/register_client
     ```
 
-    *This step will provide you with a client id and client secret.*
+    *This step will provide you with a client id and client secret, but skip it.*
 
     **Request Access Token:**
     ```bash
-    $ curl -X POST   http://localhost:5000/v1/oauth/access_token?grant_type=client_credentials   -H 'Content-Type: application/x-www-form-urlencoded'   -d 'client_id=your_client_id&client_secret=your_client_secret'
+    $ curl -X POST   http://localhost:5000/v1/oauth/access_token?grant_type=client_credentials   -H 'Content-Type: application/x-www-form-urlencoded'   -d 'client_id=f44fa2ff-488c-4ce4-969c-2ff0c4883ad9&client_secret=sOOI7ycMGI-gHN0VXdrfR95MFu_ThKNj9hS2j2zL60Y' 
     ```
-
+	*Dont skip this. The client id and client secret are valid.*
+	
 9. **Kill the auth server and start the messages server:**
   ```bash
     $ python3 -m v1.messages.app
     ```  
+
 10. **Retry Sending a Message with Obtained Token:**
     ```bash
     $ curl -X POST http://localhost:5000/v1/messages/sms \
