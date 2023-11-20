@@ -34,15 +34,15 @@ To test and use this API, follow these steps:
 
 In a new shell session, run the following commands:
 
-a. **Check Status:**
+**Check Status:**
     ```bash
     $ curl -X GET http://localhost:5000/v1/messages/status
 
-b. **Get Headers and Status:**
+**Get Headers and Status:**
     ```bash
     $ curl -sI http://localhost:5000/v1/messages/status
 
-c. **Send SMS:**
+**Send SMS:**
     ```bash
     $ curl -X POST http://localhost:5000/v1/messages/sms \
          -H "Content-Type: application/json" \
@@ -53,11 +53,11 @@ c. **Send SMS:**
 
 8. **Get an Access Token:**
 
-a. **Request Authorization Code:**
+**Request Authorization Code:**
     ```bash
     $ curl -X POST -H "Content-Type: application/json" -d '{"email": "your_email@example.com"}' http://localhost:5000/v1/oauth/auth_code
 
-b. **Register as a Client:**
+**Register as a Client:**
     ```bash
     $ curl -X POST -H 'Authorization: your_authorization_code' -H "Content-Type: application/json" -d '{
         "full_name": "Your Full Name",
@@ -67,7 +67,7 @@ b. **Register as a Client:**
    
     *This step will provide you with a client id and client secret.*
 
-c. **Request Access Token:**
+**Request Access Token:**
     ```bash
     $ curl -X POST http://localhost:5000/v1/oauth/access_token \
         -H "Content-Type: application/json" \
