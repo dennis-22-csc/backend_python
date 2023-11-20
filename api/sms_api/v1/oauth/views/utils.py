@@ -57,14 +57,12 @@ def hash_password(password):
     """Hashes a password using a random salt.
     """
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-    pass
 
 
 def is_valid_password(hashed_password, password):
     """Checks if the hashed password was formed from the given password.
     """
     return bcrypt.checkpw(password.encode('utf-8'), hashed_password)
-    pass
 
 def email_client(client_address, subject, body):
     email_service = EmailService.create_email_service("gmail")
@@ -103,5 +101,5 @@ def get_client_secrets():
     secret_list = []
     auth_clients = storage.all(Client)
     for auth_client in auth_clients.values():
-        secret_list.append(auth_client.id)
+        secret_list.append(auth_client.secret)
     return secret_list

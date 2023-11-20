@@ -5,6 +5,7 @@ from flask import jsonify, abort, request, current_app
 from v1.oauth.views.utils import save_obj, validate_auth_code, has_expired, delete_obj, client_exist
 from v1.oauth.views.auth_server import AuthServer
 from models.auth_code import AuthCode
+from models.access_token import AccessToken
 
 @app_views.route('/access_token', methods=['POST'], strict_slashes=False)
 def access_token():
@@ -35,7 +36,7 @@ def access_token():
     if grant_type != 'client_credentials':
         error_info = ["Unauthorized", grant_type]
         abort(401, error_info)
-    if not client_id or client_secret:
+    if not client_id or not client_secret:
         error_info = ["Unauthorized", "Please provide a client id and client secret"]
         abort(401, error_info)
 
@@ -44,7 +45,7 @@ def access_token():
         abort(401, error_info)
 
     access_token_dict = auth_server.generate_access_token(client_id, client_secret)
-    token_saved = save_obj(access_token_dict)
+    token_saved = save_obj(AccessToken, access_token_dict)
     if not token_saved:
         error_info = ["Internal Server Error", "An error occurred in the process of generating the token."]
         abort(500, error_info)
@@ -84,7 +85,7 @@ def gen_auth_code():
         error_info = ["Internal Server Error", "An error occurred in the process of generating auth code."]
         abort(500, error_info)
           
-    auth_server.send_auth_code(request_data["email"])
+    auth_server.send_auth_code(saved_code, request_data["email"])
     return jsonify({"Success": "Authorization code sent to email"}), 201
 
 

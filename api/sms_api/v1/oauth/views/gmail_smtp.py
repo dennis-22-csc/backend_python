@@ -13,7 +13,7 @@ class GmailSMTPService:
         self.username = os.getenv('GMAIL_USERNAME')
         self.password = os.getenv('GMAIL_PASSWORD')
         self.email = os.getenv('GMAIL_ADDRESS')
-        self.org_name = os.getenv('C')
+        self.org_name = os.getenv('ORG_NAME')
         
     def send_email(self, to_address, subject, body):
         try:	
@@ -34,8 +34,9 @@ class GmailSMTPService:
             # Disconnect from the server
             smtp_connection.quit()
             
-        except smtplib.SMTPException:
-            error_info = ["Email Error", "Error occurred in emailing code"]
+        except smtplib.SMTPConnectError as e:
+            #error_info = ["Email Error", "Error occurred in emailing code"]
+            error_info = ["Email Error", str(e.smtp_error)]
             abort(500, error_info)
 
 

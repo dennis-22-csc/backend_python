@@ -54,20 +54,23 @@ To test and use this API, follow these steps:
     **Send SMS:**
     ```bash
     $ curl -X POST http://localhost:5000/v1/messages/sms \
-             -H "Content-Type: application/json" \
-             -H "Authorization: xxxxxxadfrt" \
-             -d '{"to": "+234871093756", "message": "Hey there"}'
-    ```
+         -H "Content-Type: application/json" \
+         -H "Authorization: xyxwdaorhd" \
+         -d '{"to": ["+234871093756"], "message": "Hey there"}' 
 
     *Note: The last command will return a JSON response indicating an unauthorized request.*
 
 8. **Get an Access Token:**
-
-    **Request Authorization Code:**
+	**Kill the message server and start the auth server:**
+    ```bash
+    $ python3 -m v1.oauth.app
+    ```
+    
+    **In a new shell session, request Authorization Code:**
     ```bash
     $ curl -X POST -H "Content-Type: application/json" -d '{"email": "your_email@example.com"}' http://localhost:5000/v1/oauth/auth_code
     ```
-
+	**You should get an internal server error response. 
     **Register as a Client:**
     ```bash
     $ curl -X POST -H 'Authorization: your_authorization_code' -H "Content-Type: application/json" -d '{
@@ -81,16 +84,18 @@ To test and use this API, follow these steps:
 
     **Request Access Token:**
     ```bash
-    $ curl -X POST http://localhost:5000/v1/oauth/access_token \
-            -H "Content-Type: application/json" \
-            -d '{"client_id": "your_client_id", "client_secret": "your_client_secret"}' \
-            -d 'grant_type=client_credentials'
+    $ curl -X POST   http://localhost:5000/v1/oauth/access_token?grant_type=client_credentials   -H 'Content-Type: application/x-www-form-urlencoded'   -d 'client_id=your_client_id&client_secret=your_client_secret'
     ```
 
-9. **Retry Sending a Message with Obtained Token:**
+9. **Kill the auth server and start the messages server:**
+  ```bash
+    $ python3 -m v1.messages.app
+    ```  
+10. **Retry Sending a Message with Obtained Token:**
     ```bash
     $ curl -X POST http://localhost:5000/v1/messages/sms \
          -H "Content-Type: application/json" \
          -H "Authorization: your_access_token" \
-         -d '{"to": "+234871093756", "message": "Hey there"}'
+         -d '{"to": ["+234871093756"], "message": "Hey there"}'
     ```
+

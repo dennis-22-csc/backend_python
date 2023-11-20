@@ -17,12 +17,13 @@ class AuthServer():
         """Creates instance of an authentication server."""
         self.client_ids = get_client_ids()
         self.client_secrets = get_client_secrets()
-    def send_auth_code(self, client_email):
+       
+    def send_auth_code(self, auth_code, client_email):
         email_subject = "Authorization Code"
         email_body = f"Hi there,\n\n"
         email_body += f"You recently requested for an authorization code for the DennisCode SMS API.\n"
         email_body += f"Below is the code:\n\n"
-        email_body += auth_code["code"] + "\n\n"
+        email_body += auth_code.code + "\n\n"
         email_body += f"Please note that this code will expire in fifteen minutes time.\n"
         email_body += f"Best regards,\n"
         email_body += f"DennisCode"
