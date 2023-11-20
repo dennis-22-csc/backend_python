@@ -30,12 +30,12 @@ To test and use this API, follow these steps:
 	```bash
 	$ python3 -m v1.messages.app
 
-7. **Test the API:**
+7. Test the API:
 
 In a new shell session, run the following commands:
 
 **Check Status:**
-    ```bash
+	```bash
     $ curl -X GET http://localhost:5000/v1/messages/status
 
 **Get Headers and Status:**
