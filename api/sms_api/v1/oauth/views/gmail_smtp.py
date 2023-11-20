@@ -35,8 +35,8 @@ class GmailSMTPService:
             smtp_connection.quit()
             
         except smtplib.SMTPConnectError as e:
-            #error_info = ["Email Error", "Error occurred in emailing code"]
-            error_info = ["Email Error", str(e.smtp_error)]
+            error_info = ["Email Error", "Email server unavailable"]
+            #error_info = ["Email Error", str(e.smtp_error)]
             abort(500, error_info)
 
 
