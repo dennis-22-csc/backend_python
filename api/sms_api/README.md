@@ -41,7 +41,7 @@ To test and use this API, follow these steps:
 
     In a new shell session, run the following commands:
 
-    a. **Check Status:**
+    **Check Status:**
     ```bash
     $ curl -X GET http://localhost:5000/v1/messages/status
     ```
