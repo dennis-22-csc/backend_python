@@ -2,6 +2,7 @@ import bcrypt
 import secrets
 from datetime import datetime, timedelta
 from models import storage
+from models.base_model import BaseModel
 from models.access_token import AccessToken
 from models.api_client import Client
 from models.auth_code import AuthCode
@@ -9,7 +10,10 @@ from v1.oauth.views.email_service import EmailService
 
 def has_expired(my_obj):
     """Checks if expirable objects has expired."""
+    classes = [BaseModel, AccessToken, AuthCode]
     obj_dict = my_obj.to_dict()
+    if type(my_obj) not in classes or "created_at" not in obj_dict or "expires_in" not in obj_dict:
+    	raise ValueError("Didn't supply an expirable object")
     created_at = datetime.strptime(obj_dict["created_at"], '%Y-%m-%dT%H:%M:%S.%f')
     expires_in_seconds = int(obj_dict["expires_in"])
     expiration_time = created_at + timedelta(seconds=expires_in_seconds)
@@ -19,6 +23,9 @@ def delete_obj(my_obj):
     """
     Deletes an object.
     """
+    classes = [BaseModel, AccessToken, AuthCode, Client]
+    if type(my_obj) not in classes:
+        raise ValueError("Didn't supply a valid object")
     storage.delete(my_obj)
     storage.save()
     return True
@@ -36,11 +43,18 @@ def validate_token(token_value):
 
 def save_obj(class_name, obj_dict):
     """Creates new object in storage."""
+    classes = [BaseModel, AccessToken, AuthCode, Client]
+    if class_name not in classes:
+        raise ValueError("Didn't supply a valid object")
     new_obj = class_name(**obj_dict)
     new_obj.save()
     return new_obj
     
 def update_obj(class_name, info_dict, email):
+    """ Update object associated with email with information in dict"""
+    classes = [Client]
+    if class_name not in classes:
+        raise ValueError("Didn't supply a valid object")
     objs = storage.all(class_name)
     for obj in objs.values():
     	if email  == obj.email:
@@ -57,16 +71,17 @@ def hash_password(password):
     """Hashes a password using a random salt.
     """
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-
-
+    
 def is_valid_password(hashed_password, password):
     """Checks if the hashed password was formed from the given password.
     """
     return bcrypt.checkpw(password.encode('utf-8'), hashed_password)
 
 def email_client(client_address, subject, body):
+    """ Send email to client"""
     email_service = EmailService.create_email_service("gmail")
     email_service.send_email(client_address, subject, body) 
+    return True
 	
 def validate_auth_code(code, email):
     """
@@ -91,6 +106,7 @@ def client_exist(email):
     return False
 
 def get_client_ids():
+    """ Get client ids from storage."""
     id_list = []
     auth_clients = storage.all(Client)
     for auth_client in auth_clients.values():
@@ -98,6 +114,7 @@ def get_client_ids():
     return id_list
 
 def get_client_secrets():
+    """ Get client secrets from storage."""
     secret_list = []
     auth_clients = storage.all(Client)
     for auth_client in auth_clients.values():

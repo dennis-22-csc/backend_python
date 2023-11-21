@@ -19,6 +19,8 @@ def is_valid_e164(phone_number):
         >>> result = is_valid_e164(phone_number)
         >>> print(result)
     """
+    if not isinstance(phone_number, str):
+    	return False
     e164_pattern = re.compile(r'^\+\d{1,3}\d{4,14}$')
     return bool(e164_pattern.match(phone_number))
 
