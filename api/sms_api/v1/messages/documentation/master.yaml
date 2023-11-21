@@ -1,0 +1,134 @@
+swagger: '2.0'
+info:
+	title: SMS Messaging API
+	version: 1.0.0
+	description: An API for adding messaging functionality to web and mobile applications
+host: localhost:5000
+basePath: /v1/messages/
+securityDefinitions:
+  OAuth2:
+    type: oauth2
+    flow: application
+    tokenUrl: http://localhost:5000/v1/oauth/access_token
+schemes:
+	- http
+consumes:
+	- application/json
+produces:
+	- application/json
+paths:
+	'/status':
+		get:
+			description: >
+			Check the status of the API
+			to see if it is still functioning 
+			summary: Check API status
+			produces:
+ 				- application/json
+			responses:
+				200
+					description: OK
+					schema:
+						type: object
+						properties:
+							status:
+								type: string
+								example: OK
+	'/sms':
+		post:
+			description: Send an SMS to one or more recipients
+			summary: Send SMS
+			consumes:
+				- application/json
+			produces:
+				- application/json
+			parameters:
+				name: messageBody
+				in: body
+				required: true
+				type: object
+				description: >
+					A json containing a list of one or more phone numbers and the singular message to be sent to them
+				schema:
+					$ref: '#/definitions/SendSMS'
+			responses:
+				201: 
+					description: Sent
+					schema: '#/definitions/MessageSentResponse'
+				400:
+					description: Bad Request
+					schema: '#/definitions/Error'
+				401:
+					description: Unauthorized
+					schema: '#/definitions/Error'
+					
+
+definitions:
+	SendSMS:
+		title: SendSMS
+		type: object
+		required:
+			- to
+			- message 
+		properties:
+			to:
+				description: Array of one or more phone numbers
+				type: array
+				items:
+					 type: string
+				example: 
+					- "+23409532177"
+					- "+25596597144"
+	MessageSentResponse:
+		title: MessageSentResponse
+		type: object
+		required:
+			- messages
+		properties:
+			messages:
+				description: Array of message objects
+				type: array
+				items:
+					$ref: '#/definitions/Message'
+	Message:
+		title: Message
+		type: object
+		required:
+			- to
+			- deliveryStatus
+			- messageId
+			- smsStatusUrl
+		properties:
+			to:
+				description: Phone number message was sent to
+				type: string
+				example: '+21106428077'
+			deliveryStatus:
+				description: The status of the message whether delivered or not delivered
+				type: string
+				example: NotDelivered
+			messageId:
+				description: The uuid associated with the message
+				type: string
+				example: fdxxougswq-uids
+			smsStatusURL:
+				description: The URL that can be used to check the delivery status of the message
+				type: string
+				example: https://denniscode.tech/v1/messages/sms/fdxxougswq-uids/status
+	Error:
+		title: Error
+		type: object
+		required:
+			- code
+			- reason
+			- message
+		parameters:
+			code:
+				description: The HTTP status code
+				type: integer
+			reason:
+				description: Keyword associated with the error
+				type: string
+			message:
+				description: Text providing more information about the error
+				type: string
