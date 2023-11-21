@@ -4,8 +4,10 @@ from v1.messages.views import app_views
 from flask import jsonify, abort, request
 from v1.messages.views.handlers import send_sms
 from v1.oauth.views.utils import validate_token, has_expired, delete_obj
+from flasgger import swag_from
 
 @app_views.route('/status', methods=['GET'], strict_slashes=False)
+@swag_from('documentation/master.yml', methods=['GET'])
 def status():
     """
     Get the status of the API.
@@ -22,6 +24,7 @@ def status():
     return jsonify({"status": "OK"})
 
 @app_views.route('/sms', methods=['POST'])
+@swag_from('documentation/master.yml', methods=['POST'])
 def send_sms_endpoint():
     """
     Endpoint for sending SMS messages.
