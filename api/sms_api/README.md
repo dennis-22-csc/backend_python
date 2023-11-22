@@ -103,4 +103,22 @@ To test and use this API, follow these steps:
         -d '{"to": ["+234871093756"], "message": "Hey there"}'
   ```
    
+# SMS API Automated Testing
+
+To run the automated tests contained in the sms_api/tests directory, follow these steps:
+
+1. **From the sms_api directory, run the models tests:**
+    ```bash
+    $ python3 -m unittest discover tests/models
+    ```
+
+2. **From the same sms_api directory, run the messages tests:**
+    ```bash
+    $ python3 -m unittest discover tests/messages
+    ```
+
+3. **From the same sms_api directory, run the oauth tests:**
+    ```bash
+    $ python3 -m unittest discover tests/oauth
+    ```
 
