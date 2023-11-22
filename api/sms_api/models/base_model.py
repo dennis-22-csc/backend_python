@@ -40,7 +40,8 @@ class BaseModel:
         return obj_dict
 
     def save(self):
-        self.updated_at = datetime.today()
+        current_time = datetime.today()
+        self.updated_at = current_time
         models.storage.save()
 
 
