@@ -15,7 +15,7 @@ class FileStorage:
     __file_path = "file.json"
     __objects = {}
 
-    __classes = {"AccessToken": AccessToken, "AuthCode": AuthCode, "Client": Client}
+    __classes = {"BaseModel": BaseModel, "AccessToken": AccessToken, "AuthCode": AuthCode, "Client": Client}
     
     def all(self, cls=None):
         """Return a dictionary of instantiated objects in __objects.
