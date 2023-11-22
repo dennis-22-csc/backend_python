@@ -6,8 +6,10 @@ from v1.oauth.views.utils import save_obj, validate_auth_code, has_expired, dele
 from v1.oauth.views.auth_server import AuthServer
 from models.auth_code import AuthCode
 from models.access_token import AccessToken
+from flasgger import swag_from
 
 @app_views.route('/access_token', methods=['POST'], strict_slashes=False)
+@swag_from('documentation/master.yml', methods=['POST'])
 def access_token():
     """
 
@@ -52,6 +54,7 @@ def access_token():
     return jsonify(access_token_dict), 201  
 
 @app_views.route('/auth_code', methods=['POST'])
+@swag_from('documentation/master.yml', methods=['POST'])
 def gen_auth_code():
     """
     Endpoint for generating authentication code.
@@ -90,6 +93,7 @@ def gen_auth_code():
 
 
 @app_views.route('/register_client', methods=['POST'])
+@swag_from('documentation/master.yml', methods=['POST'])
 def register_client_endpoint():
     """
     Endpoint for registering clients.

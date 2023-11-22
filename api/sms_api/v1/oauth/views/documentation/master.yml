@@ -1,5 +1,5 @@
 swagger: '2.0'
-  info:
+info:
   title: Auth Server
   version: 1.0.0
   description: An authorisation and authentication server for the SMS Messaging API

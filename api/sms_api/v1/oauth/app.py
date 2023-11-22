@@ -2,10 +2,18 @@ import json
 from flask import Flask, Response
 from v1.oauth.views import app_views
 from os import environ
+from flasgger import Swagger
+from flasgger.utils import swag_from
 
 app = Flask(__name__)
 app.register_blueprint(app_views)
 app.json.sort_keys = False
+app.config['SWAGGER'] = {
+    'title': 'SMS API',
+    'uiversion': 3
+}
+
+Swagger(app)
 
 def handle_error(error):
     """
