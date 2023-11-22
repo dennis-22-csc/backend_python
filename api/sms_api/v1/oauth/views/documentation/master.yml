@@ -1,0 +1,199 @@
+swagger: '2.0'
+  info:
+  title: Auth Server
+  version: 1.0.0
+  description: An authorisation and authentication server for the SMS Messaging API
+host: localhost:5000
+basePath: /v1/oauth
+securityDefinitions:
+  OAuth2:
+    type: oauth2
+    flow: application
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  '/auth_code':
+    post:
+      description: Sends authorization code to email for authentication
+      summary: Sends authorization code 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          description: The content type of the request
+          example: application/json
+        - name: info
+          in: body
+          required: true
+          description: Json containing the email of the client
+          schema:
+            type: object
+            properties:
+              email: 
+                description: Email of the client
+                type: string 
+                example: johndoe@example.com
+      responses:
+        201:
+          description: Sent
+          schema:
+            $ref: '#/definitions/Email'
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+           description: Internal Server Error
+           schema:
+            $ref: '#/definitions/Error'
+  '/register_client':
+    post:
+      description: Registers a new client with provided information
+      summary: Register new client
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Authorization
+          in: header
+          type: string
+          description: Your authorization code
+          required: true
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          description: The content type of the request
+          example: application/json
+        - name: info 
+          in: body 
+          required: true 
+          schema:
+            type: object
+            description: Information to be used for registration 
+            properties:
+              full_name:
+                type: string
+              email:
+                type: string
+              password: 
+                type: string
+            required:
+              - full_name
+              - email
+              - password
+      responses:
+        201:
+          description: Registered 
+          schema:
+            $ref: '#/definitions/ClientRegisteredResponse'
+        400:
+          description: Bad Request 
+          schema:
+            $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+  '/access_token':
+    post:
+      description: Generates an access token that can be used to interact with the messaging API.
+      summary: Generates access token.
+      consumes:
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - name: grant_type
+          in: query
+          required: true 
+          type: object
+          description: The grant type for authentication
+          example: client_credentials
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          description: The content type of the request
+          example: application/x-www-form-urlencoded
+        - name: credentials
+          in: body
+          required: true
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                type: object
+                properties:
+                  client_id:
+                    type: string
+                  client_secret:
+                    type: string
+                required:
+                  - client_id
+                  - client_secret
+      responses:
+        201:
+          description: Created
+          schema:
+            $ref: '#/definitions/TokenCreatedResponse'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: Internal Server Error 
+          schema:
+            $ref: '#/definitions/Error'
+definitions:
+  Error:
+    title: Error
+    type: object
+    required:
+      - code
+      - reason
+      - message
+    parameters:
+      code:
+        description: The HTTP status code
+        type: integer
+      reason:
+        description: Keyword associated with the error
+        type: string
+      message:
+        description: Text providing more information about the error
+        type: string
+  ClientRegisteredResponse:
+    title: ClientRegisteredResponse
+    type: object
+    properties:
+      status:
+        type: string
+      client_id:
+        type: string
+      client_secret:
+        type: string
+    required:
+      - status
+      - client_id
+      - client_secret
+  TokenCreatedResponse:
+    title: TokenCreatedResponse
+    type: object
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+    required:
+      - access_token
+      - expires_in 
