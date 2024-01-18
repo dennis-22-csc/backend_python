@@ -1,5 +1,6 @@
 import bcrypt
 import secrets
+import models
 from datetime import datetime, timedelta
 from models import storage
 from models.base_model import BaseModel
@@ -13,7 +14,10 @@ def has_expired(my_obj):
     obj_dict = my_obj.to_dict()
     if type(my_obj) not in classes or "created_at" not in obj_dict or "expires_in" not in obj_dict:
     	raise ValueError("Didn't supply an expirable object")
-    created_at = datetime.strptime(obj_dict["created_at"], '%Y-%m-%dT%H:%M:%S')
+    if models.storage_t == 'db':
+        created_at = datetime.strptime(obj_dict["created_at"], '%Y-%m-%dT%H:%M:%S')
+    else:
+        created_at = datetime.strptime(obj_dict["created_at"], '%Y-%m-%dT%H:%M:%S.%f')
     expires_in_seconds = int(obj_dict["expires_in"])
     expiration_time = created_at + timedelta(seconds=expires_in_seconds)
     return datetime.now() > expiration_time
