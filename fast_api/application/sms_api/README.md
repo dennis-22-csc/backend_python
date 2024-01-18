@@ -56,7 +56,7 @@ To test and use this API, follow these steps:
     $ uvicorn v1.messages.app:app
     ```
 
-7. **Test the API:**
+8. **Test the API:**
 
     In a new shell session, run the following commands:
 
@@ -74,7 +74,7 @@ To test and use this API, follow these steps:
     ```
     *Note: The last command will return a JSON response indicating an unauthorized request.*
 
-8. **Get an Access Token:**
+9. **Get an Access Token:**
 
     **Kill the message server with CTRL-C and start the auth server with the below:**
     ```bash
@@ -104,12 +104,12 @@ To test and use this API, follow these steps:
     }'
     ```
 	
-9. **Kill the auth server with CTRL-C and start the messages server with the below:**
+10. **Kill the auth server with CTRL-C and start the messages server with the below:**
   ```bash
     $ uvicorn v1.messages.app:app
   ```
     
-10. **Retry Sending a Message with Obtained Token:**
+11. **Retry Sending a Message with Obtained Token:**
   ```bash
     $ curl -X POST http://localhost:8000/v1/messages/sms \
         -H "Content-Type: application/json" \
@@ -117,7 +117,7 @@ To test and use this API, follow these steps:
         -d '{"to": ["+234871093756"], "message": "Hey there"}'
   ```
 
-11. **Tear down MYSQL Database:**
+12. **Tear down MYSQL Database:**
 
     Run the following commands:
 
