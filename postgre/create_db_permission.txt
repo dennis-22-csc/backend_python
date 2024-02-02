@@ -1,0 +1,21 @@
+Access PostgreSQL Shell (psql)
+Open terminal and type the following command to access the PostgreSQL shell:
+
+sudo -u postgres psql
+
+Grant Create table permission
+GRANT CREATE, CONNECT ON DATABASE postgres TO myuser;
+
+Verify Superuser Privileges:
+Ensure that the user you are connecting with has superuser privileges. Superusers have all privileges by default.
+
+ALTER USER myuser WITH SUPERUSER;
+
+Quit the shell session
+
+\q
+
+Restart postgres
+
+sudo service postgresql restart
+
