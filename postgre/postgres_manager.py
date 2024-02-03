@@ -294,5 +294,7 @@ if __name__ == "__main__":
     db.query_table_user('users', 'dennis')
     db.delete_table_row('users', 'dennis')
     db.query_table_user('users', 'dennis')
+    db.add_table_columns('users', 'fisrt_name', 'last_name', 'age')
+    db.delete_table_columns('users', 'age')
     db.delete_table('users')
     db.close_connection()
