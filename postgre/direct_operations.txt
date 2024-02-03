@@ -1,0 +1,41 @@
+Accessing default user postgres
+
+sudo -u postgres psql
+
+Accessing default database
+
+\c postgres;
+
+Checking connection info in Postgres prompt
+
+\conninfo
+
+Checking existing tables in Postgres prompt
+
+\d
+
+View table schema in Postgres prompt
+
+\d table_name
+
+Exiting postgres
+
+\q
+
+Create new database from terminal for user postgres
+sudo -u postgres createdb db_name
+
+Create database in terminal for user other than postgres
+sudo -u postgres createdb -O other_user db_name
+
+Create database from Postgres prompt
+CREATE DATABASE db_name;
+
+Accessing new database
+
+\c db_name;
+
+Accessing a user other than postgres
+sudo -u other_user psql db_name
+
+

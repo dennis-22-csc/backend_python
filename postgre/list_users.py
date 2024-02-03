@@ -40,5 +40,5 @@ if __name__ == "__main__":
     # Call the function to list users
     list_users(host, port, password)
 
-#python3 list_users.py  localhost 5432 db_password
+#python3 list_users.py localhost 5432 db_password
 
